@@ -1,0 +1,162 @@
+<html lang="en">
+
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+
+  <div align="center">
+    <h1 margin="10"> List of VHS</h1>
+    <table class="vhses">
+      <tr>
+        <th>Id filtr
+        </th>
+        <th>Title filtr
+        </th>
+        <th>Year filtr
+        </th>
+      </tr>
+      <tr>
+        <th>
+          <input type="text"  [(ngModel)]="idSearch"  (keyup)="searchVhs()"></th>
+        <th>
+          <input type="text"  [(ngModel)]="name"  (keyup)="searchVhs()"></th>
+        <th>
+          <input type="text"  [(ngModel)]="year"  (keyup)="searchVhs()"></th>
+      </tr>
+      <tr>
+        <th>
+          <button class="rent" (click)="sort('id')">sort</button></th>
+        <th>
+          <button class="rent" (click)="sort('name')">sort</button></th>
+        <th>
+          <button class="rent" (click)="sort('year')">sort</button></th>
+      </tr>
+      <tr *ngFor="let vhs of vhses" (click)="onSelect(vhs)">
+        <td *ngIf="vhs.rented === 0" [class.selected]="vhs === selectedVhs" [routerLink]="['/detail', vhs.id]">{{vhs.id}}</td>
+        <td *ngIf="vhs.rented === 0" [class.selected]="vhs === selectedVhs" [routerLink]="['/detail', vhs.id]">{{vhs.name}}</td>
+        <td *ngIf="vhs.rented === 0" [class.selected]="vhs === selectedVhs" [routerLink]="['/detail', vhs.id]">{{vhs.year}}</td>
+        <td *ngIf="vhs.rented === 0"><button class="rent" (click)="rent(vhs); $event.stopPropagation()">rent</button></td>
+        <td *ngIf="vhs.rented === 0"><button class="rent" data-toggle="modal" data-target="#editModal">edit</button></td>
+        <td *ngIf="vhs.rented === 0"><button class="rent" (click)="delete(vhs); $event.stopPropagation()">delete</button></td>
+      </tr>
+    </table>
+    <div>
+
+      <!-- Trigger the modal with a button -->
+      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addModal">Add new movie</button>
+
+      <!-- Modal edit -->
+      <div id="editModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <table align="center">
+                <tr>
+                  <td>
+                    <h4 class="modal-title"> {{selectedVhs.name}} </h4>
+                    <td>
+                </tr>
+                <tr><img src={{selectedVhs.urlJpeg}} alt="Movie jpg" style="width:304px;height:228px;">
+                </tr>
+              </table>
+
+            </div>
+            <div class="modal-body">
+              <form #edit="ngForm">
+                {{diagnostic}}
+                <div class="form-group">
+                  <label for="title">Title</label>
+                  <input type="text" class="form-control" id="title" required [(ngModel)]="newVhs.name" name="title" #title="ngModel">
+                  <div [hidden]="title.valid || title.pristine" class="alert alert-danger">
+                    Title is mandatory
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="y">Year</label>
+                  <input type="number" class="form-control" id="y" required [(ngModel)]="newVhs.year" name="y" #y="ngModel">
+                  <div [hidden]="y.valid || y.pristine" class="alert alert-danger">
+                    Year is mandatory
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="urlJpeg">urlJpeg</label>
+                  <input type="text" class="form-control" id="urlJpeg" required [(ngModel)]="newVhs.urlJpeg" name="urlJpeg" #urlJpeg="ngModel">
+                  <div [hidden]="urlJpeg.valid || urlJpeg.pristine" class="alert alert-danger">
+                    urlJpeg is mandatory
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="urlGif">urlGif</label>
+                  <input type="text" class="form-control" id="urlGif" required [(ngModel)]="newVhs.urlGif" name="urlGif" #urlGif="ngModel">
+                  <div [hidden]="urlGif.valid || urlGif.pristine" class="alert alert-danger">
+                    urlGif is mandatory
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-success" [disabled]="!edit.form.valid" (click)="update(newVhs.id, newVhs.name, newVhs.year, newVhs.urlJpeg, newVhs.urlGif )">
+                Update</button>
+              </form>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal" (click)="getVhses()">Close</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Modal add -->
+      <div id="addModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Dodaj film: </h4>
+            </div>
+            <div class="modal-body">
+
+              <form #addModal="ngForm">
+                {{diagnostic}}
+                <div class="form-group">
+                  <label for="title">Title</label>
+                  <input type="text" class="form-control" id="title" required [(ngModel)]="model.name" name="title" #title="ngModel">
+                  <div [hidden]="title.valid || title.pristine" class="alert alert-danger">
+                    Title is mandatory
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="y">Year</label>
+                  <input type="number" class="form-control" id="y" required [(ngModel)]="model.year" name="y" #y="ngModel">
+                  <div [hidden]="y.valid || y.pristine" class="alert alert-danger">
+                    Year is mandatory
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-success" [disabled]="!addModal.form.valid" (click)="add(model.name,model.year);model.name='';model.year=''">Submit</button>
+              </form>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+</body>
+
+</html>

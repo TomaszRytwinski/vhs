@@ -1,0 +1,15 @@
+<div id="search-component" align = "center">
+  <h4>Vhs Search</h4>
+  <input #searchBox id="search-box" (keyup)="search(searchBox.value)" />
+  <div>
+    <table class="vhses" >
+      <tr *ngFor="let vhs of vhses | async" (click)="gotoDetail(vhs)" class="search-result">
+        <td *ngIf="vhs.rented === 0">{{vhs.id}}</td>
+        <td *ngIf="vhs.rented === 0">{{vhs.name}}</td>
+        <td *ngIf="vhs.rented === 0">{{vhs.year}}</td>
+        <td *ngIf="vhs.rented === 0"><button class="rent" (click)="rent(vhs); $event.stopPropagation()">rent</button></td>
+        <td *ngIf="vhs.rented === 0"><button class="delete" (click)="delete(vhs); $event.stopPropagation()">x</button></td>
+      </tr>
+        </table>
+  </div>
+</div>
